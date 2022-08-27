@@ -10,7 +10,7 @@ import { useEffect, useReducer, useState } from "react";
 
 type Options = "pending" | "resolved" | "rejected" | "idle";
 type State = {
-  status: string;
+  status: Options | string;
   data: null | Pokemon | undefined;
   error: null | Error | undefined;
 };
@@ -44,14 +44,13 @@ function asyncReducer(_state: State, action: Partial<Action>) {
 function useAsync(
   asyncCallback: () => Promise<Pokemon> | undefined,
   dependencies: string[],
-  initialState: Partial<State>
+  initialState: { status: Options }
 ) {
   const [state, dispatch] = useReducer(asyncReducer, {
-    ...initialState,
-    status: "idle",
     // 🐨 this will need to be "data" instead of "pokemon"
     data: null,
     error: null,
+    ...initialState,
   });
 
   useEffect(() => {
