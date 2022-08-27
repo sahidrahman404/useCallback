@@ -1,0 +1,40 @@
+#+title: useCallback
+
+** What is memoization?
+Memoization is a performance optimization technique which eliminates the need to
+recompute a value for a given input by storing the original computation and
+returning that stored value when the same input is provided. Caching is a form
+of memoization. Here's a simple implementation of memoization:
+#+begin_src ts
+const values = {}
+function addOne(num: number) {
+  if (values[num] === undefined) {
+    values[num] = num + 1 // <-- here's the computation
+  }
+  return values[num]
+}
+#+end_src
+** Why do you need memoization?
+1. Improve performance by avoiding expensive computations (like re-rendering
+   expensive components or calling expensive functions)
+2. Value stability
+** Memoization in React
+In react we can use ~useMemo~ and ~useCallback~ for memoization. The caching
+strategy React has adopted has a size of 1. That is, they only keep around the
+most recent value of the input and result.
+** ~useMemo~ vs ~useCallback~
+~useCallback~ is just a shortcut to using ~useMemo~ for functions
+#+begin_src ts
+// the useMemo version:
+const updateLocalStorage = React.useMemo(
+  // useCallback saves us from this annoying double-arrow function thing:
+  () => () => window.localStorage.setItem('count', count),
+  [count],
+)
+
+// the useCallback version
+const updateLocalStorage = React.useCallback(
+  () => window.localStorage.setItem('count', count),
+  [count],
+)
+#+end_src
