@@ -10,7 +10,7 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import "./pokemon.css";
 
-interface Pokemon {
+export interface Pokemon {
   id: string;
   number: string;
   name: string;
@@ -31,7 +31,7 @@ const formatDate = (date: Date) =>
   ).padStart(2, "0")}.${String(date.getMilliseconds()).padStart(3, "0")}`;
 
 // the delay argument is for faking things out a bit
-function fetchPokemon(name: string) {
+function fetchPokemon(name: string): Promise<Pokemon> {
   const pokemonQuery = `
     query PokemonInfo($name: String) {
       pokemon(name: $name) {
