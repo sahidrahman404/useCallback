@@ -6,7 +6,7 @@ import {
   PokemonErrorBoundary,
   Pokemon,
 } from "./pokemon";
-import { useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 
 type Options = "pending" | "resolved" | "rejected" | "idle";
 type State = {
@@ -43,7 +43,6 @@ function asyncReducer(_state: State, action: Partial<Action>) {
 
 function useAsync(
   asyncCallback: () => Promise<Pokemon> | undefined,
-  dependencies: string[],
   initialState: { status: Options }
 ) {
   const [state, dispatch] = useReducer(asyncReducer, {
@@ -76,7 +75,7 @@ function useAsync(
     // 🐨 you'll accept dependencies as an array and pass that here.
     // 🐨 because of limitations with ESLint, you'll need to ignore
     // the react-hooks/exhaustive-deps rule. We'll fix this in an extra credit.
-  }, dependencies);
+  }, [asyncCallback]);
   return state;
 }
 
@@ -92,16 +91,16 @@ function PokemonInfo({ pokemonName }: { pokemonName: string }) {
   // --------------------------- end ---------------------------
 
   // 🐨 here's how you'll use the new useAsync hook you're writing:
-  const state = useAsync(
-    () => {
-      if (!pokemonName) {
-        return;
-      }
-      return fetchPokemon(pokemonName);
-    },
-    [pokemonName],
-    { status: pokemonName ? "pending" : "idle" }
-  );
+  const asyncCallback = useCallback(() => {
+    if (!pokemonName) {
+      return;
+    }
+    return fetchPokemon(pokemonName);
+  }, [pokemonName]);
+
+  const state = useAsync(asyncCallback, {
+    status: pokemonName ? "pending" : "idle",
+  });
   // 🐨 this will change from "pokemon" to "data"
   const { data, status, error } = state;
 
