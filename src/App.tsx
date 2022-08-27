@@ -6,7 +6,17 @@ import {
   PokemonErrorBoundary,
   Pokemon,
 } from "./pokemon";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import {
+  Dispatch,
+  Reducer,
+  ReducerAction,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 
 type Options = "pending" | "resolved" | "rejected" | "idle";
 type State = {
@@ -19,6 +29,24 @@ type Action = {
   data: null | Pokemon;
   error: null | Error;
 };
+
+function useSafeDispatch(dispatch: Dispatch<ReducerAction<Reducer<any, any>>>) {
+  const mountedRef = useRef(false);
+
+  useLayoutEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  return useCallback(
+    ({ ...args }: Partial<Action>) => {
+      if (mountedRef.current) dispatch({ ...args });
+    },
+    [dispatch]
+  );
+}
 
 function asyncReducer(_state: State, action: Partial<Action>) {
   switch (action.type) {
@@ -38,11 +66,13 @@ function asyncReducer(_state: State, action: Partial<Action>) {
 }
 
 function useAsync(initialState: { status: Options }) {
-  const [state, dispatch] = useReducer(asyncReducer, {
+  const [state, unsafeDispatch] = useReducer(asyncReducer, {
     data: null,
     error: null,
     ...initialState,
   });
+
+  const dispatch = useSafeDispatch(unsafeDispatch);
 
   const run = useCallback((promise: Promise<Pokemon>) => {
     dispatch({ type: "pending" });
