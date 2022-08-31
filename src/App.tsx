@@ -30,7 +30,9 @@ type Action = {
   error: null | Error;
 };
 
-function useSafeDispatch(dispatch: Dispatch<ReducerAction<Reducer<any, any>>>) {
+function useSafeDispatch(
+  dispatch: Dispatch<ReducerAction<Reducer<State, Partial<Action>>>>
+) {
   const mountedRef = useRef(false);
 
   useLayoutEffect(() => {
