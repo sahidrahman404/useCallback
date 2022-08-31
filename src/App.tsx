@@ -114,7 +114,7 @@ function PokemonInfo({ pokemonName }: { pokemonName: string }) {
     case "rejected":
       throw error;
     case "resolved":
-      return <PokemonDataView pokemon={data!} />;
+      return <PokemonDataView pokemon={data ? data : "no data"} />;
     default:
       throw new Error("This should be impossible");
   }
