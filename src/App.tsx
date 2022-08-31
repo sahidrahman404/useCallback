@@ -86,6 +86,7 @@ function useAsync(initialState: { status: Options }) {
         dispatch({ type: "rejected", error });
       }
     );
+    /* eslint-disable */
   }, []);
 
   return { ...state, run };
